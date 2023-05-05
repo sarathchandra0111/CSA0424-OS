@@ -1,0 +1,46 @@
+#include <stdio.h>
+
+#define MAX_PARTITIONS 6
+
+int partitions[MAX_PARTITIONS] = {300, 600, 350, 200, 750, 125};
+
+void print_partitions() {
+    int i;
+    printf("Memory partitions: ");
+    for (i = 0; i < MAX_PARTITIONS; i++) {
+        printf("%d KB ", partitions[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int processes[5] = {115, 500, 358, 200, 375};
+    int num_processes = 5;
+    int i, j;
+
+    printf("First-fit algorithm for memory management\n\n");
+    print_partitions();
+
+    for (i = 0; i < num_processes; i++) {
+        int process_size = processes[i];
+        printf("\nPlacing process of size %d KB\n", process_size);
+
+        int found_partition = 0;
+        for (j = 0; j < MAX_PARTITIONS; j++) {
+            if (partitions[j] >= process_size) {
+                found_partition = 1;
+                printf("Process placed in partition %d (size %d KB)\n", j+1, partitions[j]);
+                partitions[j] -= process_size;
+                break;
+            }
+        }
+
+        if (!found_partition) {
+            printf("No partition found to place the process of size %d KB\n", process_size);
+        }
+
+        print_partitions();
+    }
+
+    return 0;
+}
