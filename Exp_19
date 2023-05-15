@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+int shared_data;  // Shared memory
+sem_t semaphore;  // Semaphore for synchronization
+
+void *thread1(void *arg) {
+    int doubled_data;
+
+    // Wait for the semaphore
+    sem_wait(&semaphore);
+
+    // Read the shared memory and perform the operation
+    doubled_data = shared_data * 2;
+
+    // Print the result
+    printf("Thread 1: Doubled data = %d\n", doubled_data);
+
+    // Release the semaphore
+    sem_post(&semaphore);
+
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    int multiplied_data;
+
+    // Wait for the semaphore
+    sem_wait(&semaphore);
+
+    // Read the shared memory and perform the operation
+    multiplied_data = shared_data * 5;
+
+    // Print the result
+    printf("Thread 2: Multiplied data = %d\n", multiplied_data);
+
+    // Release the semaphore
+    sem_post(&semaphore);
+
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2;
+
+    // Initialize the semaphore
+    sem_init(&semaphore, 0, 1);
+
+    // Read the integer data from the user
+    printf("Enter an integer value: ");
+    scanf("%d", &shared_data);
+
+    // Create thread 1
+    if (pthread_create(&t1, NULL, thread1, NULL) != 0) {
+        fprintf(stderr, "Error creating thread 1\n");
+        return 1;
+    }
+
+    // Create thread 2
+    if (pthread_create(&t2, NULL, thread2, NULL) != 0) {
+        fprintf(stderr, "Error creating thread 2\n");
+        return 1;
+    }
+
+    // Wait for the threads to finish
+    if (pthread_join(t1, NULL) != 0) {
+        fprintf(stderr, "Error joining thread 1\n");
+        return 1;
+    }
+    if (pthread_join(t2, NULL) != 0) {
+        fprintf(stderr, "Error joining thread 2\n");
+        return 1;
+    }
+
+    // Destroy the semaphore
+    sem_destroy(&semaphore);
+
+    return 0;
+}
