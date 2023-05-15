@@ -1,0 +1,76 @@
+#include <stdio.h>
+
+struct Process {
+    char name[3];
+    int burst_time;
+    int remaining_time;
+    int waiting_time;
+    int turnaround_time;
+};
+
+void round_robin(struct Process processes[], int n, int quantum) {
+    int i, j;
+    int waiting_time = 0;
+    int turnaround_time = 0;
+    
+    // Initialize the remaining time for each process
+    for (i = 0; i < n; i++) {
+        processes[i].remaining_time = processes[i].burst_time;
+    }
+    
+    // Process the queue until it becomes empty
+    while (1) {
+        int completed = 1;
+        
+        for (i = 0; i < n; i++) {
+            // Execute the process for the quantum time
+            if (processes[i].remaining_time > 0) {
+                if (processes[i].remaining_time > quantum) {
+                    printf("Running %s for %d ms\n", processes[i].name, quantum);
+                    processes[i].remaining_time -= quantum;
+                } else {
+                    quantum = processes[i].remaining_time;
+                    printf("Running %s for %d ms\n", processes[i].name, quantum);
+                    processes[i].remaining_time = 0;
+                }
+                
+                completed = 0;
+                
+                // Check if the process is completed
+                if (processes[i].remaining_time == 0) {
+                    processes[i].turnaround_time = waiting_time + processes[i].burst_time;
+                    processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
+                    turnaround_time += processes[i].turnaround_time;
+                    waiting_time += processes[i].waiting_time;
+                }
+            }
+        }
+        
+        // Break the loop if all processes are completed
+        if (completed == 1) {
+            break;
+        }
+    }
+    
+    // Calculate the average waiting time and average turnaround time
+    float avg_waiting_time = (float)waiting_time / n;
+    float avg_turnaround_time = (float)turnaround_time / n;
+    
+    printf("Average Waiting Time: %.2f ms\n", avg_waiting_time);
+    printf("Average Turnaround Time: %.2f ms\n", avg_turnaround_time);
+}
+
+int main() {
+    struct Process processes[] = {
+        {"P1", 24},
+        {"P2", 3},
+        {"P3", 3}
+    };
+    
+    int num_processes = sizeof(processes) / sizeof(processes[0]);
+    int quantum_time = 4;
+    
+    round_robin(processes, num_processes, quantum_time);
+    
+    return 0;
+}
