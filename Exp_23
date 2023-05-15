@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define MAX_TRACKS 100
+
+int compare(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
+int scan(int tracks[], int num_tracks, int head_position) {
+    int i, head_index = -1;
+    
+    // Find the index of the head position
+    for (i = 0; i < num_tracks; i++) {
+        if (tracks[i] == head_position) {
+            head_index = i;
+            break;
+        }
+    }
+    
+    if (head_index == -1) {
+        printf("Error: Head position not found in the track list.\n");
+        return -1;
+    }
+    
+    // Sort the tracks in ascending order
+    qsort(tracks, num_tracks, sizeof(int), compare);
+    
+    int total_movement = 0;
+    
+    // Start scanning from the head position towards the higher track numbers
+    for (i = head_index; i < num_tracks; i++) {
+        total_movement += abs(head_position - tracks[i]);
+        head_position = tracks[i];
+    }
+    
+    // Move the head to the maximum track
+    total_movement += abs(head_position - MAX_TRACKS);
+    head_position = MAX_TRACKS;
+    
+    // Continue scanning from the maximum track towards the lower track numbers
+    for (i = num_tracks - 1; i >= 0; i--) {
+        total_movement += abs(head_position - tracks[i]);
+        head_position = tracks[i];
+    }
+    
+    return total_movement;
+}
+
+int main() {
+    int tracks[MAX_TRACKS] = {55, 58, 60, 70, 18};
+    int num_tracks = sizeof(tracks) / sizeof(tracks[0]);
+    int head_position = 50;  // Initial head position
+    
+    int average_movement = scan(tracks, num_tracks, head_position) / num_tracks;
+    
+    printf("Average head movement: %d\n", average_movement);
+    
+    return 0;
+}
