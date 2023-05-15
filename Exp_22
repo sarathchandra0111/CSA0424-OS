@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_DIRS 10
+#define MAX_FILES 10
+#define MAX_NAME_LEN 20
+
+struct File {
+    char name[MAX_NAME_LEN];
+    int size;
+};
+
+struct Directory {
+    char name[MAX_NAME_LEN];
+    struct File files[MAX_FILES];
+    int num_files;
+};
+
+struct User {
+    char name[MAX_NAME_LEN];
+    struct Directory dir;
+};
+
+struct User users[MAX_DIRS];
+int num_users = 0;
+
+void create_user(char *name) {
+    if (num_users >= MAX_DIRS) {
+        printf("Error: maximum number of users reached\n");
+        return;
+    }
+    struct User user;
+    strcpy(user.name, name);
+    strcpy(user.dir.name, name);
+    user.dir.num_files = 0;
+    users[num_users++] = user;
+    printf("User %s created\n", name);
+}
+
+struct User *find_user(char *name) {
+    for (int i = 0; i < num_users; i++) {
+        if (strcmp(users[i].name, name) == 0) {
+            return &users[i];
+        }
+    }
+    return NULL;
+}
+
+void create_file(char *username, char *filename, int size) {
+    struct User *user = find_user(username);
+    if (user == NULL) {
+        printf("Error: user %s not found\n", username);
+        return;
+    }
+    if (user->dir.num_files >= MAX_FILES) {
+        printf("Error: maximum number of files reached for user %s\n", username);
+        return;
+    }
+    struct File file;
+    strcpy(file.name, filename);
+    file.size = size;
+    user->dir.files[user->dir.num_files++] = file;
+    printf("File %s created for user %s\n", filename, username);
+}
+
+void print_directory(struct Directory dir) {
+    printf("Directory %s:\n", dir.name);
+    for (int i = 0; i < dir.num_files; i++) {
+        printf("- %s (%d KB)\n", dir.files[i].name, dir.files[i].size);
+    }
+}
+
+void print_users() {
+    printf("Users:\n");
+    for (int i = 0; i < num_users; i++) {
+        print_directory(users[i].dir);
+    }
+}
+
+int main() {
+    create_user("user1");
+    create_user("user2");
+    create_user("user3");
+    create_file("user1", "file1.txt", 10);
+    create_file("user1", "file2.txt", 20);
+    create_file("user1", "file3.txt", 30);
+    create_file("user2", "file1.txt", 15);
+    create_file("user2", "file2.txt", 25);
+    create_file("user3", "file1.txt", 12);
+    create_file("user3", "file2.txt", 18);
+    print_users();
+    return 0;
+}
