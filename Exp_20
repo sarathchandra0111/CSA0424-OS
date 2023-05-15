@@ -1,0 +1,72 @@
+20 #include <stdio.h>
+
+#define MAX_PARTITIONS 6
+#define MAX_PROCESSES 5
+
+struct MemoryPartition {
+    int size;
+    int allocated;
+};
+
+struct Process {
+    int size;
+    int allocated_partition;
+};
+
+void worst_fit(struct MemoryPartition memory[], int num_partitions, struct Process processes[], int num_processes) {
+    int i, j;
+    
+    for (i = 0; i < num_processes; i++) {
+        int worst_index = -1;
+        
+        for (j = 0; j < num_partitions; j++) {
+            if (memory[j].allocated == 0 && memory[j].size >= processes[i].size) {
+                if (worst_index == -1 || memory[j].size > memory[worst_index].size) {
+                    worst_index = j;
+                }
+            }
+        }
+        
+        if (worst_index != -1) {
+            memory[worst_index].allocated = 1;
+            memory[worst_index].size -= processes[i].size;
+            processes[i].allocated_partition = worst_index;
+        }
+    }
+}
+
+int main() {
+    struct MemoryPartition memory[MAX_PARTITIONS] = {
+        {300, 0},
+        {600, 0},
+        {350, 0},
+        {200, 0},
+        {750, 0},
+        {125, 0}
+    };
+    
+    struct Process processes[MAX_PROCESSES] = {
+        {115, -1},
+        {500, -1},
+        {358, -1},
+        {200, -1},
+        {375, -1}
+    };
+    
+    int num_partitions = sizeof(memory) / sizeof(memory[0]);
+    int num_processes = sizeof(processes) / sizeof(processes[0]);
+    
+    worst_fit(memory, num_partitions, processes, num_processes);
+    
+    printf("Process\t\tSize\tPartition\n");
+    for (int i = 0; i < num_processes; i++) {
+        printf("P%d\t\t%d KB\t", i+1, processes[i].size);
+        if (processes[i].allocated_partition != -1) {
+            printf("%d\n", processes[i].allocated_partition + 1);
+        } else {
+            printf("Not allocated\n");
+        }
+    }
+    
+    return 0;
+}
