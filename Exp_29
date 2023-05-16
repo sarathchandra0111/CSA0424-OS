@@ -1,0 +1,28 @@
+#include <stdio.h>
+
+#define NUM_PARTITIONS 4
+#define MAX_PROCESSES 5
+
+int main() {
+    int partitions[NUM_PARTITIONS] = {40, 10, 30, 60};
+    int processes[MAX_PROCESSES] = {100, 50, 30, 120, 35};
+    int allocated[MAX_PROCESSES] = {0};
+
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        int j;
+        for (j = 0; j < NUM_PARTITIONS; j++) {
+            if (processes[i] <= partitions[j]) {
+                partitions[j] -= processes[i];
+                allocated[i] = 1;
+                printf("Process %d (size %d) is allocated to partition %d (remaining size %d)\n", 
+                       i+1, processes[i], j+1, partitions[j]);
+                break;
+            }
+        }
+        if (j == NUM_PARTITIONS) {
+            printf("Process %d (size %d) cannot be allocated\n", i+1, processes[i]);
+        }
+    }
+
+    return 0;
+}
