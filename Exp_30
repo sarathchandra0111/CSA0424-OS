@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <pthread.h>
+
+#define MAX_NUMBER 20
+
+void* printEvenNumbers(void* arg) {
+    printf("Even Numbers: ");
+    for (int i = 0; i <= MAX_NUMBER; i++) {
+        if (i % 2 == 0) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+    pthread_exit(NULL);
+}
+
+void* printOddNumbers(void* arg) {
+    printf("Odd Numbers: ");
+    for (int i = 0; i <= MAX_NUMBER; i++) {
+        if (i % 2 != 0) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t evenThread, oddThread;
+
+    // Create the even thread
+    if (pthread_create(&evenThread, NULL, printEvenNumbers, NULL) != 0) {
+        fprintf(stderr, "Error creating the even thread\n");
+        return 1;
+    }
+
+    // Create the odd thread
+    if (pthread_create(&oddThread, NULL, printOddNumbers, NULL) != 0) {
+        fprintf(stderr, "Error creating the odd thread\n");
+        return 1;
+    }
+
+    // Wait for the even thread to finish
+    if (pthread_join(evenThread, NULL) != 0) {
+        fprintf(stderr, "Error joining the even thread\n");
+        return 1;
+    }
+
+    // Wait for the odd thread to finish
+    if (pthread_join(oddThread, NULL) != 0) {
+        fprintf(stderr, "Error joining the odd thread\n");
+        return 1;
+    }
+
+    return 0;
+}
