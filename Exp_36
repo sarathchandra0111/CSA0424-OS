@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int absolute(int a, int b) {
+    return abs(a - b);
+}
+
+int findClosestTrack(int tracks[], int numTracks, int headPosition) {
+    int closestTrack = -1;
+    int minDistance = 10000;
+
+    for (int i = 0; i < numTracks; i++) {
+        int distance = absolute(tracks[i], headPosition);
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestTrack = tracks[i];
+        }
+    }
+
+    return closestTrack;
+}
+
+int main() {
+    int numTracks = 5;
+    int tracks[] = {55, 58, 60, 70, 18};
+    int headPosition = 50;
+
+    int totalHeadMovement = 0;
+
+    printf("Track Order: %d ", headPosition);
+
+    for (int i = 0; i < numTracks; i++) {
+        int closestTrack = findClosestTrack(tracks, numTracks, headPosition);
+        totalHeadMovement += absolute(closestTrack, headPosition);
+        headPosition = closestTrack;
+        printf("%d ", headPosition);
+    }
+
+    double averageHeadMovement = (double)totalHeadMovement / numTracks;
+
+    printf("\nAverage Head Movement: %.2lf\n", averageHeadMovement);
+
+    return 0;
+}
