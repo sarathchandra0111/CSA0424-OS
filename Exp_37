@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_FRAMES 10
+
+int findOptimal(int pages[], int numPages, int frames[], int numFrames, int startIndex) {
+    int optimalIndex = -1;
+    int farthestIndex = -1;
+
+    for (int i = 0; i < numFrames; i++) {
+        int j;
+        for (j = startIndex; j < numPages; j++) {
+            if (frames[i] == pages[j]) {
+                if (j > farthestIndex) {
+                    farthestIndex = j;
+                    optimalIndex = i;
+                }
+                break;
+            }
+        }
+        if (j == numPages) {
+            return i; // If a page is not referenced in future, return it
+        }
+    }
+
+    return optimalIndex;
+}
+
+int main() {
+    int numFrames;
+    printf("Enter the number of page frames: ");
+    scanf("%d", &numFrames);
+
+    int pages[MAX_FRAMES];
+    int numPages = 0;
+
+    int frames[MAX_FRAMES] = {0};
+    int numPageFaults = 0;
+
+    printf("Enter the page reference sequence (enter -1 to stop):\n");
+    while (true) {
+        int page;
+        scanf("%d", &page);
+        if (page == -1) {
+            break;
+        }
+
+        pages[numPages++] = page;
+
+        int index = -1;
+        for (int i = 0; i < numFrames; i++) {
+            if (frames[i] == page) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            numPageFaults++;
+
+            if (numPages <= numFrames) {
+                frames[numPages - 1] = page;
+            } else {
+                int optimalIndex = findOptimal(pages, numPages, frames, numFrames, numPages);
+                frames[optimalIndex] = page;
+            }
+        }
+
+        printf("Page Reference: %d, Page Frames: ", page);
+        for (int i = 0; i < numFrames; i++) {
+            printf("%d ", frames[i]);
+        }
+        printf("\n");
+    }
+
+    printf("Number of Page Faults: %d\n", numPageFaults);
+
+    return 0;
+}
